@@ -62,7 +62,7 @@ int main()
 
 	 fprintf(stdout, "Reading from Server Process SHM\n");
 	 myexit = 0;
-	 while(!myexit){
+	 while(!(myexit == 1)){
 		 sleep(1);
 		 mydata = shm;
 		 fprintf(stdout, "\nSTATUS DUMP\n");
@@ -74,8 +74,11 @@ int main()
 		 fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		 fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-		 printf("\nEnter 1 for exit or 0 for continue: ");
-		 scanf("%d", &myexit);
+		 myexit = 1000;
+		 while(!(myexit > -1 && myexit < 2)){
+			 printf("\nEnter 1 for exit or 0 for continue: ");
+			 scanf("%d", &myexit);
+		 }
 	 }
 	 mydata->exit = 1;
 
