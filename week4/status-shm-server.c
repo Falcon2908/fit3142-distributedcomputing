@@ -19,16 +19,16 @@
 int main()
 {
 
-	char 
-		ident[] = "$Id: status-shm-server.c,v 1.2 2015/08/17 06:53:03 carlo Exp carlo $\n",
+	char
+		ident[] = "\n$Id: status-shm-server.c, Arvin Wiyono 16/08/2016\n",
 		mychar;
-	int 
+	int
 		up = 0, shmid;
-	key_t 
+	key_t
 		mykey;
 	void *
     	shmat(int shmid, const void *addr, int flag);
-	int 
+	int
 		shmdt(const void *shmaddr);
 	SEG_DATA
 		*shm, *mydata;
@@ -80,10 +80,10 @@ int main()
 	mydata->temp = 80;
 	mydata->fanspeed = 30;
 	mydata->oilpres = 70;
-
+	printf("%s\n", ident);
 	while( mydata->exit != 1 ){
 		if ( up == 1 && mydata->rpm > 6500 ) up = 0; /* cycle values */
-		if ( up == 0 && mydata->rpm < 500 ) up = 1;  
+		if ( up == 0 && mydata->rpm < 500 ) up = 1;
 		if ( up == 1 ){
 		mydata->rpm += 100;
 		mydata->crankangle += 1;
@@ -141,5 +141,5 @@ int main()
 
 	fprintf(stdout, "Task completed\n");
 	exit(0);
-	
+
 }
