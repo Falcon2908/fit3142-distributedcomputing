@@ -9,8 +9,8 @@ CC = gcc
 AS = as
 LD = $(CC)
 
-# 
-CFLAGS = -g 
+#
+CFLAGS = -g
 # -Wall
 LDFLAGS = -g -lm
 INCLUDES = .
@@ -27,10 +27,10 @@ INCLUDES = .
 # Student files
 #
 MYSERVER = status-server
-MYCLIENT = MyID-client
-MYCOBJS = MyID-shm-client.o
+MYCLIENT = 24282588-client
+MYCOBJS = 24282588-shm-client.o
 MYSOBJS = status-shm-server.o
-MYSRC = MyID-shm-client.c       status-shm-server.c
+MYSRC = 24282588-shm-client.c       status-shm-server.c
 #
 # Test files
 #
@@ -40,7 +40,7 @@ COBJS = shm-client-test.o
 SOBJS = shm-server-test.o
 SRC = shm-client-test.c shm-server-test.c
 
-all: $(MYSOBJS) $(MYCOBJS)
+student: $(MYSOBJS) $(MYCOBJS)
 	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
 	$(LD) $(LDFLAGS) -o $(MYCLIENT) $(MYCOBJS)
 
@@ -57,7 +57,7 @@ server: $(SOBJS)
 myserver: $(MYSOBJS)
 	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
 
-MyID-shm-client.o:  MyID-shm-client.c       
+MyID-shm-client.o:  MyID-shm-client.c
 status-shm-server.o:	status-shm-server.c
 
 shm-client-test.o:	shm-client-test.c
