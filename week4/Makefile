@@ -10,14 +10,14 @@ AS = as
 LD = $(CC)
 
 #
-CFLAGS = -g
+CFLAGS = -g -Wall
 # -Wall
-LDFLAGS = -g -lm
+LDFLAGS = -g -lm -Wall
 INCLUDES = .
 
 #rules
 .c.s:
-	$(CC) -c $(CFLAGS) -I $(INCLUDES) $<
+	$(CC) -c -$(CFLAGS) -I $(INCLUDES) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) -I $(INCLUDES) $<

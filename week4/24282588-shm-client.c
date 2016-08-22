@@ -1,18 +1,15 @@
 /*
  * Shared Memory Client Process as per D.A. Curry `Using C on the Unix System'
  * shm-clinet-test.c
- * Author: C. Kopp
- * (c) 2004, Monash University, SCCSE
- *
- * $Id: MyID-client-template.c,v 1.2 2015/08/17 06:53:03 carlo Exp carlo $
- *
+ * Author: Arvin Wiyono
+ * 16/08/2016
  */
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include "segment.h"
 
 
@@ -63,7 +60,7 @@ int main()
 	 fprintf(stdout, "Reading from Server Process SHM\n");
 	 myexit = 0;
 	 while(!(myexit == 1)){
-		 sleep(1);
+		// print all properties of SEG_DATA
 		 mydata = shm;
 		 fprintf(stdout, "\nSTATUS DUMP\n");
 		 fprintf(stdout, "Exit Status      = %d\n", mydata->exit );
@@ -76,10 +73,13 @@ int main()
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
 		 myexit = 1000;
 		 while(!(myexit > -1 && myexit < 2)){
-			 printf("\nEnter 1 for exit or 0 for continue: ");
+			 // get user input
+			 printf("\nEnter (1) to exit OR (0) to continue: ");
 			 scanf("%d", &myexit);
 		 }
 	 }
+
+	 // setting the exit status to 1
 	 mydata->exit = 1;
 
 	/*
