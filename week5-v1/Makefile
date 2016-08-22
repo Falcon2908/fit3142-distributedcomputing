@@ -28,9 +28,9 @@ INCLUDES = .
 #
 MYSERVER = status-server
 MYCLIENT = 24282588-client
-MYCOBJS = 24282588-shm-client.o
+MYCOBJS = 24282588-shm-client-reading-lock.o
 MYSOBJS = status-shm-server.o
-MYSRC = 24282588-shm-client.c status-shm-server.c
+MYSRC = 24282588-shm-client-reading-lock.c status-shm-server.c
 
 student: $(MYSOBJS) $(MYCOBJS) $(MYUTILOBJS)
 	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
@@ -39,7 +39,7 @@ student: $(MYSOBJS) $(MYCOBJS) $(MYUTILOBJS)
 myserver: $(MYSOBJS)
 	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
 
-24282588-shm-client.o:  24282588-shm-client.c
+24282588-shm-client.o:  24282588-shm-client-reading-lock.c
 status-shm-server.o:	status-shm-server.c
 
 checkin:
@@ -50,5 +50,4 @@ checkin:
 clean:
 	echo "cleaning up ..."
 	rm -f *core
-	rm -f $(SERVER) $(SOBJS) $(CLIENT) $(COBJS)
 	rm -f $(MYSERVER) $(MYSOBJS) $(MYCLIENT) $(MYCOBJS)
