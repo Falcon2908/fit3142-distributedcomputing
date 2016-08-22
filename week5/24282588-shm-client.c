@@ -42,7 +42,7 @@ int main()
 	mykey = SEGMENTID;
 
 	/*
-	 * here we create the shared memory segment using the `shmget' system call.
+	 * Here we create the shared memory segment using the `shmget' system call.
 	 */
 	if( ( shmid = shmget( mykey, sizeof(SEG_DATA), 0666 ) ) < 0){
 		perror("shmget: cannot find shared memory segment; exiting now");
@@ -77,10 +77,10 @@ int main()
 			 fprintf(stdout, "Waiting for resource...\n");
 			 sleep(1);
 		 }
-		 // set lock
+		 // Set lock
 		 mydata->mylock ^= client_id;
 
-		 // print all properties of SEG_DATA
+		 // Print all properties of SEG_DATA
 		 fprintf(stdout, "\nCLIENT #%d - STATUS DUMP\n", client_number);
 		 fprintf(stdout, "Lock             = %d\n", mydata->mylock );
  		 fprintf(stdout, "Present          = %d\n", mydata->present );
@@ -92,23 +92,26 @@ int main()
 		 fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		 fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-		 // sleep is added to give real feel to waiting resource
+		 // Sleep is added to give real a real feel of utilizing resource
 		 sleep(3);
-		 // unset lock
+		 
+		 // Unlock resource
 		 fprintf(stdout, "Unlocking resource\n");
 		 mydata->mylock ^= client_id;
 
 		 myexit = 1000;
 		 while(!(myexit > -1 && myexit < 2)){
-			 // get user input
+			 
+			 // Get user input
 			 printf("\nEnter (1) to exit OR (0) to continue: ");
 			 scanf("%d", &myexit);
 		 }
 	 }
 
-	 // setting the exit status to 1
+	 // Set present bit to 0
 	 mydata->present ^= client_id;
-
+	
+	 // Toggling exit status to 1
 	 if((mydata->exit & client_id) != 1)
 	 	mydata->exit ^= client_id;
 
