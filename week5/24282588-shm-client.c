@@ -9,9 +9,8 @@
 #include <sys/shm.h>
 #include <stdio.h>
 #include <stdlib.h>
-// #include <unistd.h>
 #include "segment-lock.h"
-
+#include "util.h"
 
 int main()
 {
