@@ -13,14 +13,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "segment.h"
+#include "segment-lock.h"
 
 
 int main()
 {
 
 	char
-		ident[] = "\n$Id: status-shm-server.c, Arvin Wiyono 16/08/2016\n";
+		ident[] = "\n$Id: status-shm-server.c, Arvin Wiyono 16/08/2016";
 	int
 		up = 0, shmid;
 	key_t

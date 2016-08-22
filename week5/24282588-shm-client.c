@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 // #include <unistd.h>
-#include "segment.h"
+#include "segment-lock.h"
 
 
 int main()
