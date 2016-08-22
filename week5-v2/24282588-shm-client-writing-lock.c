@@ -66,20 +66,21 @@ int main()
 
 	 // Toggle the present bit
 	 if((mydata->present & client_id) == 0){
+		 while(mydata->mylock > 0){
+			fprintf(stdout, "Waiting for resource...\n");
+			sleep(1);
+		 }
+		 fprintf(stdout, "Locking resource\n");
+		 mydata->mylock ^= client_id;
 		 mydata->present ^= client_id;
+		 sleep(3); // To give a real feel of utilizing resource
+		 fprintf(stdout, "Unlocking resource\n");
+		 mydata->mylock ^= client_id;
 	 }
 
 	 fprintf(stdout, "Reading from Server Process SHM\n");
 	 myexit = 0;
 	 while(!(myexit == 1)){
-
-		 while(mydata->mylock > 0){
-			 fprintf(stdout, "Waiting for resource...\n");
-			 sleep(1);
-		 }
-		 // Set lock
-		 mydata->mylock ^= client_id;
-
 		 // Print all properties of SEG_DATA
 		 fprintf(stdout, "\nCLIENT #%d - STATUS DUMP\n", client_number);
 		 fprintf(stdout, "Lock             = %d\n", mydata->mylock );
@@ -92,28 +93,32 @@ int main()
 		 fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		 fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-		 // Sleep is added to give real a real feel of utilizing resource
-		 sleep(3);
-		 
-		 // Unlock resource
-		 fprintf(stdout, "Unlocking resource\n");
-		 mydata->mylock ^= client_id;
 
 		 myexit = 1000;
 		 while(!(myexit > -1 && myexit < 2)){
-			 
+
 			 // Get user input
 			 printf("\nEnter (1) to exit OR (0) to continue: ");
 			 scanf("%d", &myexit);
 		 }
 	 }
 
+	 while(mydata->mylock > 0){
+		fprintf(stdout, "Waiting for resource...\n");
+		sleep(1);
+	 }
+	 fprintf(stdout, "Locking resource\n");
+	 mydata->mylock ^= client_id;
 	 // Set present bit to 0
 	 mydata->present ^= client_id;
-	
 	 // Toggling exit status to 1
 	 if((mydata->exit & client_id) != 1)
 	 	mydata->exit ^= client_id;
+
+	 sleep(3);
+	 fprintf(stdout, "Unlocking resource\n");
+	 mydata->mylock ^= client_id;
+
 
 	/*
 	 * We must now unmap the segment into our process address space using the
