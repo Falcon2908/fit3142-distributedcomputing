@@ -122,8 +122,8 @@ int main()
 		fprintf(stdout, "\nSTATUS DUMP\n");
 		fprintf(stdout, "Lock             = %d\n", mydata->mylock );
 		fprintf(stdout, "Present          = %d\n", mydata->present );
-		fprintf(stdout, "UP Status        = %d\n", up );
 		fprintf(stdout, "Exit Status      = %d\n", mydata->exit );
+		fprintf(stdout, "UP Status        = %d\n", up );
 		fprintf(stdout, "RPM              = %d\n", mydata->rpm );
 		fprintf(stdout, "Crank Angle      = %d\n", mydata->crankangle );
 		fprintf(stdout, "Throttle Setting = %d\n", mydata->throttle );

@@ -92,16 +92,16 @@ int main()
 		 fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		 fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-		 // Sleep is added to give real a real feel of utilizing resource
+		 // Sleep is added to give a real feel of utilizing resource
 		 sleep(3);
-		 
+
 		 // Unlock resource
 		 fprintf(stdout, "Unlocking resource\n");
 		 mydata->mylock ^= client_id;
 
 		 myexit = 1000;
 		 while(!(myexit > -1 && myexit < 2)){
-			 
+
 			 // Get user input
 			 printf("\nEnter (1) to exit OR (0) to continue: ");
 			 scanf("%d", &myexit);
@@ -110,7 +110,7 @@ int main()
 
 	 // Set present bit to 0
 	 mydata->present ^= client_id;
-	
+
 	 // Toggling exit status to 1
 	 if((mydata->exit & client_id) != 1)
 	 	mydata->exit ^= client_id;
