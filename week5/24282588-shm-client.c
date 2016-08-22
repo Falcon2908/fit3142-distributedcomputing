@@ -7,10 +7,10 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "segment-lock.h"
-#include "util.h"
 
 int main()
 {
@@ -25,6 +25,16 @@ int main()
 		shmdt(const void *shmaddr);
 	SEG_DATA
 		*shm, *mydata;
+
+	int client_number;
+	fprintf(stdout, "Enter client number: ");
+	scanf("%d", &client_number);
+	if(client_number > 4 || client_number < 1){
+		fprintf(stdout, "Client number is invalid. Only accept a number between 1 to 4!\n");
+		exit(1);
+	}
+
+	int client_id = clients[client_number-1];
 
 	/*
 	 * The shared memory segment is identified by SEGMENTID
@@ -52,12 +62,28 @@ int main()
 	 * Test Code - read from segment
 	 */
 
+	 mydata = shm;
+
+	 // Toggle the present bit
+	 if((mydata->present & client_id) == 0){
+		 mydata->present ^= client_id;
+	 }
+
 	 fprintf(stdout, "Reading from Server Process SHM\n");
 	 myexit = 0;
 	 while(!(myexit == 1)){
-		// print all properties of SEG_DATA
-		 mydata = shm;
-		 fprintf(stdout, "\nSTATUS DUMP\n");
+
+		 while(mydata->mylock > 0){
+			 fprintf(stdout, "Waiting for resource...\n");
+			 sleep(1);
+		 }
+		 // set lock
+		 mydata->mylock ^= client_id;
+
+		 // print all properties of SEG_DATA
+		 fprintf(stdout, "\nCLIENT #%d - STATUS DUMP\n", client_number);
+		 fprintf(stdout, "Lock             = %d\n", mydata->mylock );
+ 		 fprintf(stdout, "Present          = %d\n", mydata->present );
 		 fprintf(stdout, "Exit Status      = %d\n", mydata->exit );
 		 fprintf(stdout, "RPM              = %d\n", mydata->rpm );
 		 fprintf(stdout, "Crank Angle      = %d\n", mydata->crankangle );
@@ -66,6 +92,12 @@ int main()
 		 fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		 fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		 fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
+		 // sleep is added to give real feel to waiting resource
+		 sleep(3);
+		 // unset lock
+		 fprintf(stdout, "Unlocking resource\n");
+		 mydata->mylock ^= client_id;
+
 		 myexit = 1000;
 		 while(!(myexit > -1 && myexit < 2)){
 			 // get user input
@@ -75,7 +107,10 @@ int main()
 	 }
 
 	 // setting the exit status to 1
-	 mydata->exit = 1;
+	 mydata->present ^= client_id;
+
+	 if((mydata->exit & client_id) != 1)
+	 	mydata->exit ^= client_id;
 
 	/*
 	 * We must now unmap the segment into our process address space using the

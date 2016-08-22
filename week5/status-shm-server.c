@@ -14,11 +14,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "segment-lock.h"
-#include "util.h"
+
+int get_client_number(int num){
+	int power = 0;
+	while(num != 0){
+		num /= 2;
+		power++;
+	}
+	return power;
+}
 
 int main()
 {
-
 	char
 		ident[] = "\n$Id: status-shm-server.c, Arvin Wiyono 16/08/2016";
 	int
@@ -32,12 +39,10 @@ int main()
 	SEG_DATA
 		*shm, *mydata;
 
-
 	/*
 	 * The shared memory segment is identified by SEGMENTID
 	 */
 	mykey = SEGMENTID;
-
 
 	/*
 	 * here we create the shared memory segment using the `shmget' system call.
@@ -61,16 +66,17 @@ int main()
 		exit(1);
 		}
 
-	/*
-	 * Test Code - write into segment
-	 */
-
-	mydata = (SEG_DATA *)shm;
-
+	int exit_status = 0;
+	// Get exit status from sum of client IDs
+	for(int i = 0; i < 4; i++){
+		exit_status += clients[i];
+	}
 
 	/*
 	 * Initialise values in segment
 	 */
+	mydata = (SEG_DATA *)shm;
+	mydata->mylock = 0;
 	mydata->exit = 0;
 	mydata->rpm = 3500;
 	mydata->crankangle = 0;
@@ -80,40 +86,42 @@ int main()
 	mydata->fanspeed = 30;
 	mydata->oilpres = 70;
 	printf("%s\n", ident);
-	while( mydata->exit != 1 ){
+	while( mydata->exit != exit_status ){
 		if ( up == 1 && mydata->rpm > 6500 ) up = 0; /* cycle values */
 		if ( up == 0 && mydata->rpm < 500 ) up = 1;
 		if ( up == 1 ){
-		mydata->rpm += 100;
-		mydata->crankangle += 1;
-		mydata->crankangle %= 360;
-		mydata->throttle += 1;
-		mydata->throttle %= 100;
-		mydata->fuelflow += 1;
-		mydata->fuelflow %= 100;
-		mydata->temp += 1;
-		mydata->temp %= 100;
-		mydata->fanspeed += 1;
-		mydata->fanspeed %= 100;
-		mydata->oilpres += 1;
-		mydata->oilpres %= 100;
+			mydata->rpm += 100;
+			mydata->crankangle += 1;
+			mydata->crankangle %= 360;
+			mydata->throttle += 1;
+			mydata->throttle %= 100;
+			mydata->fuelflow += 1;
+			mydata->fuelflow %= 100;
+			mydata->temp += 1;
+			mydata->temp %= 100;
+			mydata->fanspeed += 1;
+			mydata->fanspeed %= 100;
+			mydata->oilpres += 1;
+			mydata->oilpres %= 100;
 		} else {
-		mydata->rpm -= 100;
-		mydata->crankangle -= 1;
-		mydata->crankangle %= 360;
-		mydata->throttle -= 1;
-		mydata->throttle %= 100;
-		mydata->fuelflow -= 1;
-		mydata->fuelflow %= 100;
-		mydata->temp -= 1;
-		mydata->temp %= 100;
-		mydata->fanspeed -= 1;
-		mydata->fanspeed %= 100;
-		mydata->oilpres -= 1;
-		mydata->oilpres %= 100;
+			mydata->rpm -= 100;
+			mydata->crankangle -= 1;
+			mydata->crankangle %= 360;
+			mydata->throttle -= 1;
+			mydata->throttle %= 100;
+			mydata->fuelflow -= 1;
+			mydata->fuelflow %= 100;
+			mydata->temp -= 1;
+			mydata->temp %= 100;
+			mydata->fanspeed -= 1;
+			mydata->fanspeed %= 100;
+			mydata->oilpres -= 1;
+			mydata->oilpres %= 100;
 		}
 		sleep(1);
 		fprintf(stdout, "\nSTATUS DUMP\n");
+		fprintf(stdout, "Lock             = %d\n", mydata->mylock );
+		fprintf(stdout, "Present          = %d\n", mydata->present );
 		fprintf(stdout, "UP Status        = %d\n", up );
 		fprintf(stdout, "Exit Status      = %d\n", mydata->exit );
 		fprintf(stdout, "RPM              = %d\n", mydata->rpm );
@@ -123,9 +131,13 @@ int main()
 		fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-		fprintf(stdout, "Waiting for client\n");
+		if(mydata->mylock > 0){
+			fprintf(stdout, "Getting locked by CLIENT #%d\n", get_client_number(mydata->mylock));
+		}
+		else{
+			fprintf(stdout, "Waiting for client\n");
+		}
 	}
-
 
 	/*
 	 * We must now unmap the segment into our process address space using the

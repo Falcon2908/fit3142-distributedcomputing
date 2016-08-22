@@ -28,22 +28,19 @@ INCLUDES = .
 #
 MYSERVER = status-server
 MYCLIENT = 24282588-client
-MYUTIL = util
 MYCOBJS = 24282588-shm-client.o
 MYSOBJS = status-shm-server.o
-MYUTILOBJS = util.o
-MYSRC = 24282588-shm-client.c status-shm-server.c util.c
+MYSRC = 24282588-shm-client.c status-shm-server.c
 
 student: $(MYSOBJS) $(MYCOBJS) $(MYUTILOBJS)
-	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS) $(MYUTILOBJS)
-	$(LD) $(LDFLAGS) -o $(MYCLIENT) $(MYCOBJS) $(MYUTILOBJS)
+	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
+	$(LD) $(LDFLAGS) -o $(MYCLIENT) $(MYCOBJS)
 
 myserver: $(MYSOBJS)
 	$(LD) $(LDFLAGS) -o $(MYSERVER) $(MYSOBJS)
 
 24282588-shm-client.o:  24282588-shm-client.c
 status-shm-server.o:	status-shm-server.c
-util.o:	util.c
 
 checkin:
 	echo "check in files ..."
@@ -54,4 +51,4 @@ clean:
 	echo "cleaning up ..."
 	rm -f *core
 	rm -f $(SERVER) $(SOBJS) $(CLIENT) $(COBJS)
-	rm -f $(MYSERVER) $(MYSOBJS) $(MYCLIENT) $(MYCOBJS) $(MYUTILOBJS)
+	rm -f $(MYSERVER) $(MYSOBJS) $(MYCLIENT) $(MYCOBJS)

@@ -24,3 +24,5 @@ typedef struct
 #define CLIENT_2  0x02
 #define CLIENT_3  0x04
 #define CLIENT_4  0x08
+
+int clients[] = { CLIENT_1, CLIENT_2, CLIENT_3, CLIENT_4 };
