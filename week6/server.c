@@ -16,8 +16,14 @@
 #define BACKLOG 10
 #define BUFFSIZE 1024
 
-int main(int argc, char* argv[]){
+void *get_in_addr(struct sockaddr *sa){
+  if (sa->sa_family == AF_INET){
+    return &(((struct sockaddr_in*)sa)->sin_addr);
+  }
+  return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
 
+int main(int argc, char* argv[]){
   int status;
   struct addrinfo hints, *servinfo;
 
@@ -81,10 +87,11 @@ int main(int argc, char* argv[]){
     exit(1);
   }
 
+  char s[INET6_ADDRSTRLEN];
+  inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
+  fprintf(stdout, "server: got connection from %s\n", s);
+
   char buffer[BUFFSIZE] = "";
-  // char s[INET6_ADDRSTRLEN];
-  // inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
-  // fprintf(stdout, "server: got connection from %s\n", s);
   while(recv(new_fd, buffer, BUFFSIZE, 0)){
     fprintf(stdout, "%s", buffer);
     memset(buffer,0,strlen(buffer));
