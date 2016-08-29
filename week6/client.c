@@ -27,13 +27,16 @@ int main(int argc, char* argv[]){
   int status;
   struct addrinfo hints, *servinfo;
 
-  fprintf(stdout, "fit3142 - server application\n");
+  fprintf(stdout, "fit3142 - client application\n");
+  if(argc != 2){
+    fprintf(stdout, "usage: client hostname\n");
+    exit(1);
+  }
 
   // Perform getaddrinfo()
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC; // look for both IPv4 and IPv6 address
   hints.ai_socktype = SOCK_STREAM; // can be either SOCK_STREAM or SOCK_DGRAM
-  hints.ai_flags = AI_PASSIVE;
 
   if((status = getaddrinfo(NULL, PORT, &hints, &servinfo)) == -1){
     perror("error in getaddrinfo()");
@@ -47,51 +50,35 @@ int main(int argc, char* argv[]){
     // Get socket file descriptor
     if((socketfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
       perror("error in socket()");
+      fprintf(stdout, "continue to the next addrinfo\n");
       continue;
     }
-
-    // Perform binding
-    if(bind(socketfd, p->ai_addr, p->ai_addrlen) == -1){
+    // Perform connect
+    if(connect(socketfd, p->ai_addr, p->ai_addrlen) == -1){
       close(socketfd);
-      perror("error in bind()");
+      perror("error in connect()");
+      fprintf(stdout, "continue to the next addrinfo\n");
       continue;
     }
     break;
   }
-  freeaddrinfo(servinfo); // Done with the structure
 
   // If there is no socket that can be bound
   if(p == NULL){
-    perror("error: server failed to bind\n");
-    exit(1);
-  }
-
-  // BACKLOG is the number of connections allowed on the incoming queue
-  if(listen(socketfd, BACKLOG) == -1){
-    perror("error: listen()\n");
-    exit(1);
-  }
-  fprintf(stdout, "server: waiting for connections...\n");
-
-  struct sockaddr_storage client_address;
-  socklen_t addr_size = sizeof(client_address);
-  int new_fd = accept(socketfd, (struct sockaddr *) &client_address, &addr_size);
-
-  if(new_fd == -1){
-    perror("error: accept()");
+    perror("error: client failed to connect ");
     exit(1);
   }
 
   char s[INET6_ADDRSTRLEN];
-  inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
-  fprintf(stdout, "server: got connection from %s\n", s);
+  inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof(s));
+  fprintf(stdout, "client: connecting to %s\n", s);
+  freeaddrinfo(servinfo); // Done with the structure
 
-  char buffer[BUFFSIZE] = "";
-  while(recv(new_fd, buffer, BUFFSIZE, 0)){
-    fprintf(stdout, "%s", buffer);
-    memset(buffer,0,strlen(buffer));
+  // start getting input from user
+  char buffer[BUFFSIZE];
+  while(fgets(buffer, BUFFSIZE, stdin) != NULL ){
+      send(socketfd, buffer, strlen(buffer), 0);
   }
-  close(new_fd);
   close(socketfd);
 
   fprintf(stdout, "connection is closed!\n");
