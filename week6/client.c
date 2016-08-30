@@ -1,4 +1,4 @@
-// FIT3142 - Server with BSD socket
+// FIT3142 - Client that connects to a server with BSD socket
 // Author: Arvin Wiyono
 // Date: 29 August 2016 - Semester 2
 // Based on beej.us tutorial on Network programming
