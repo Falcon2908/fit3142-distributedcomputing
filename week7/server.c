@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
@@ -25,9 +26,6 @@ void *get_in_addr(struct sockaddr *sa){
 }
 
 int main(int argc, char* argv[]){
-  SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
-  
-  fprintf(stdout, "%d\n", mydata->mylock);
   int status;
   struct addrinfo hints, *servinfo;
 
@@ -75,28 +73,128 @@ int main(int argc, char* argv[]){
     perror("error: listen()\n");
     exit(1);
   }
-
   fprintf(stdout, "server: waiting for connections...\n");
-  struct sockaddr_storage client_address;
-  socklen_t addr_size = sizeof(client_address);
-  // accept() makes server wait until a client is attached
-  int new_fd = accept(socketfd, (struct sockaddr *) &client_address, &addr_size);
 
-  if(new_fd == -1){
-    perror("error: accept()");
-    exit(1);
-  }
+  int fdmax = socketfd;
+  fd_set read_set;
+  fd_set master_set;
+  // Initializing set
+  FD_ZERO(&read_set);
+  FD_ZERO(&master_set);
+  // Add socketfd to read_set
+  FD_SET(socketfd, &master_set);
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
 
-  char s[INET6_ADDRSTRLEN];
-  inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
-  fprintf(stdout, "server: got connection from %s\n", s);
+
+
+  // Initializing SEG_DATA
+  SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
+  mydata->mylock = 0;
+	mydata->exit = 0;
+	mydata->rpm = 3500;
+	mydata->crankangle = 0;
+	mydata->throttle = 70;
+	mydata->fuelflow = 50;
+	mydata->temp = 80;
+	mydata->fanspeed = 30;
+	mydata->oilpres = 70;
+  int up = 0;
 
   char buffer[BUFFSIZE] = "";
-  while(recv(new_fd, buffer, BUFFSIZE, 0)){
-    fprintf(stdout, "%s", buffer);
-    memset(buffer,0,strlen(buffer));
-  }
-  close(new_fd);
+  for(;;){
+    // Copy master to read set
+    read_set = master_set;
+
+    if(select(fdmax + 1, &read_set, NULL, NULL, &tv) == -1){
+      perror("error: select()");
+      exit(1);
+    }
+
+    for(int i = 0; i <= fdmax; i++){
+      if(FD_ISSET(i, &read_set)){ // Get one that is read to be served
+        if(i == socketfd){ // A new client is attached
+          struct sockaddr_storage client_address;
+          socklen_t addr_size = sizeof(client_address);
+          int new_fd = accept(socketfd, (struct sockaddr *) &client_address, &addr_size);
+
+          if(new_fd == -1){
+            perror("error: accept()");
+            exit(1);
+          }
+          else{
+            FD_SET(new_fd, &master_set);
+            if(new_fd > fdmax){
+              fdmax = new_fd;
+            }
+            char s[INET6_ADDRSTRLEN];
+            inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
+            fprintf(stdout, "server: got connection from %s\n", s);
+          }
+        }
+        else{
+          int nbytes;
+          if((nbytes = recv(i, buffer, sizeof(buffer), 0)) == 0){
+            fprintf(stdout, "server: client #%d is disconnected\n", i);
+            close(i);
+            // Remove from master set
+            FD_CLR(i, &master_set);
+          }
+          else{
+            // Client requests SEG_DATA
+            send(i, "Hello from server", 17, 0);
+          }
+        }
+      } // End of if FD_ISSET
+    } // End of loop
+    // Update values in SEG_DATA
+    if ( up == 1 && mydata->rpm > 6500 ) up = 0;
+		if ( up == 0 && mydata->rpm < 500 ) up = 1;
+		if ( up == 1 ){
+			mydata->rpm += 100;
+			mydata->crankangle += 1;
+			mydata->crankangle %= 360;
+			mydata->throttle += 1;
+			mydata->throttle %= 100;
+			mydata->fuelflow += 1;
+			mydata->fuelflow %= 100;
+			mydata->temp += 1;
+			mydata->temp %= 100;
+			mydata->fanspeed += 1;
+			mydata->fanspeed %= 100;
+			mydata->oilpres += 1;
+			mydata->oilpres %= 100;
+		} else {
+			mydata->rpm -= 100;
+			mydata->crankangle -= 1;
+			mydata->crankangle %= 360;
+			mydata->throttle -= 1;
+			mydata->throttle %= 100;
+			mydata->fuelflow -= 1;
+			mydata->fuelflow %= 100;
+			mydata->temp -= 1;
+			mydata->temp %= 100;
+			mydata->fanspeed -= 1;
+			mydata->fanspeed %= 100;
+			mydata->oilpres -= 1;
+			mydata->oilpres %= 100;
+		}
+		sleep(1);
+		fprintf(stdout, "\nSTATUS DUMP\n");
+		fprintf(stdout, "Lock             = %d\n", mydata->mylock );
+		fprintf(stdout, "Present          = %d\n", mydata->present );
+		fprintf(stdout, "Exit Status      = %d\n", mydata->exit );
+		fprintf(stdout, "UP Status        = %d\n", up );
+		fprintf(stdout, "RPM              = %d\n", mydata->rpm );
+		fprintf(stdout, "Crank Angle      = %d\n", mydata->crankangle );
+		fprintf(stdout, "Throttle Setting = %d\n", mydata->throttle );
+		fprintf(stdout, "Fuel Flow        = %d\n", mydata->fuelflow );
+		fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
+		fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
+		fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
+  } // End of for(;;)
+
   close(socketfd);
 
   fprintf(stdout, "connection is closed!\n");
