@@ -87,8 +87,6 @@ int main(int argc, char* argv[]){
   tv.tv_sec = 0;
   tv.tv_usec = 0;
 
-
-
   // Initializing SEG_DATA
   SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
   mydata->mylock = 0;
@@ -103,7 +101,8 @@ int main(int argc, char* argv[]){
   int up = 0;
 
   char buffer[BUFFSIZE] = "";
-  for(;;){
+  int end_loop = 0;
+  while(!end_loop){
     // Copy master to read set
     read_set = master_set;
 
@@ -130,20 +129,23 @@ int main(int argc, char* argv[]){
             }
             char s[INET6_ADDRSTRLEN];
             inet_ntop(client_address.ss_family, get_in_addr((struct sockaddr *) &client_address), s, sizeof(s));
-            fprintf(stdout, "server: got connection from %s\n", s);
+            fprintf(stdout, "\nserver: got connection from %s\n", s);
           }
         }
         else{
           int nbytes;
+          // Check whether client is detached from socket
           if((nbytes = recv(i, buffer, sizeof(buffer), 0)) == 0){
-            fprintf(stdout, "server: client #%d is disconnected\n", i);
+            fprintf(stdout, "\nserver: client #%d is disconnected\n", i);
             close(i);
             // Remove from master set
             FD_CLR(i, &master_set);
+            end_loop = 1; // End the while loop if one of the clients is detached
           }
           else{
+            sprintf(buffer, "%d %d %d %d %d %d %d\n", mydata->rpm, mydata->crankangle, mydata->throttle, mydata->fuelflow, mydata->temp, mydata->fanspeed, mydata->oilpres);
             // Client requests SEG_DATA
-            send(i, "Hello from server", 17, 0);
+            send(i, buffer, strlen(buffer), 0);
           }
         }
       } // End of if FD_ISSET
@@ -193,10 +195,9 @@ int main(int argc, char* argv[]){
 		fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
 		fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
 		fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
-  } // End of for(;;)
+  } // End of while loop
 
   close(socketfd);
-
   fprintf(stdout, "connection is closed!\n");
   return 0;
 }
