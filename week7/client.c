@@ -89,9 +89,10 @@ int main(int argc, char* argv[]){
       printf("\nEnter command (1 to exit, 0 to continue): ");
       scanf("%d", &myexit);
     }
-    // Send something for requesting a response
     if(!(myexit == 1)){
-      send(socketfd, "Give me SEG_DATA", 16, 0);
+      memset(&buffer, 0, sizeof(buffer));
+      // Send something for requesting a response
+      send(socketfd, "Give me SEG_DATA", 16, 0); 
       for(;;){
         if(recv(socketfd, buffer, BUFFSIZE, 0) > 0)
           break;

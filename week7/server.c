@@ -91,6 +91,7 @@ int main(int argc, char* argv[]){
   SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
   mydata->mylock = 0;
 	mydata->exit = 0;
+	mydata->present = 0;
 	mydata->rpm = 3500;
 	mydata->crankangle = 0;
 	mydata->throttle = 70;
@@ -143,6 +144,7 @@ int main(int argc, char* argv[]){
             end_loop = 1; // End the while loop if one of the clients is detached
           }
           else{
+            memset(&buffer, 0, sizeof(buffer));
             sprintf(buffer, "%d %d %d %d %d %d %d", mydata->rpm, mydata->crankangle, mydata->throttle, mydata->fuelflow, mydata->temp, mydata->fanspeed, mydata->oilpres);
             // Client requests SEG_DATA
             send(i, buffer, strlen(buffer), 0);
