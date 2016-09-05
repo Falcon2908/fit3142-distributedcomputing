@@ -71,10 +71,11 @@ int main(int argc, char* argv[]){
     perror("error: listen()\n");
     exit(1);
   }
+  
   fprintf(stdout, "server: waiting for connections...\n");
-
   struct sockaddr_storage client_address;
   socklen_t addr_size = sizeof(client_address);
+  // accept() makes server wait until a client is attached
   int new_fd = accept(socketfd, (struct sockaddr *) &client_address, &addr_size);
 
   if(new_fd == -1){
