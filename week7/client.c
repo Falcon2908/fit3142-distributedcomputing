@@ -75,11 +75,31 @@ int main(int argc, char* argv[]){
   fprintf(stdout, "client: connecting to %s\n", s);
   freeaddrinfo(servinfo); // Done with the structure
 
-  // start getting input from user
+  SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
+
+  // Start getting input from server
   char buffer[BUFFSIZE];
-  while(fgets(buffer, BUFFSIZE, stdin) != NULL ){
-      send(socketfd, buffer, strlen(buffer), 0);
+  // Some value as long as it is not 1
+  int myexit = 1000;
+
+  while(!(myexit == 1)){
+    myexit = 1000;
+    while(!(myexit > -1 && myexit < 2)){
+      // Get user input
+      printf("\nEnter command (1 to exit, 0 to continue): ");
+      scanf("%d", &myexit);
+    }
+    // Send something for requesting a response
+    if(!(myexit == 1)){
+      send(socketfd, "Give me SEG_DATA", 16, 0);
+      for(;;){
+        if(recv(socketfd, buffer, BUFFSIZE, 0) > 0)
+          break;
+      }
+      fprintf(stdout, "%s\n", buffer);
+    }
   }
+
   close(socketfd);
 
   fprintf(stdout, "connection is closed!\n");
