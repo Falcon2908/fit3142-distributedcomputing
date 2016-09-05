@@ -96,7 +96,31 @@ int main(int argc, char* argv[]){
         if(recv(socketfd, buffer, BUFFSIZE, 0) > 0)
           break;
       }
-      fprintf(stdout, "%s\n", buffer);
+      // Parse integers in buffer
+      char * token;
+      char * temp;
+      const char delim[2] = " ";
+      token = strtok(buffer, delim);
+      mydata->rpm = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->crankangle = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->throttle = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->fuelflow = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->temp = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->fanspeed = strtol(token, &temp, 10);
+      token = strtok(NULL, delim);
+      mydata->oilpres = strtol(token, &temp, 10);
+      fprintf(stdout, "RPM              = %d\n", mydata->rpm );
+      fprintf(stdout, "Crank Angle      = %d\n", mydata->crankangle );
+      fprintf(stdout, "Throttle Setting = %d\n", mydata->throttle );
+      fprintf(stdout, "Fuel Flow        = %d\n", mydata->fuelflow );
+      fprintf(stdout, "Engine Temp      = %d\n", mydata->temp );
+      fprintf(stdout, "Fan Speed        = %d\n", mydata->fanspeed );
+      fprintf(stdout, "Oil Pressure     = %d\n", mydata->oilpres );
     }
   }
 
