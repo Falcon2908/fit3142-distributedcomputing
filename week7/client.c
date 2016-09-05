@@ -78,7 +78,8 @@ int main(int argc, char* argv[]){
   SEG_DATA * mydata = (SEG_DATA*) malloc(sizeof(SEG_DATA));
 
   // Start getting input from server
-  char buffer[BUFFSIZE];
+  // char buffer[BUFFSIZE];
+  int numbers[7];
   // Some value as long as it is not 1
   int myexit = 1000;
 
@@ -90,31 +91,20 @@ int main(int argc, char* argv[]){
       scanf("%d", &myexit);
     }
     if(!(myexit == 1)){
-      memset(&buffer, 0, sizeof(buffer));
+      // memset(&buffer, 0, sizeof(buffer));
       // Send something for requesting a response
-      send(socketfd, "Give me SEG_DATA", 16, 0); 
+      send(socketfd, "Give me SEG_DATA", 16, 0);
       for(;;){
-        if(recv(socketfd, buffer, BUFFSIZE, 0) > 0)
+        if(recv(socketfd, numbers, sizeof(numbers), 0) > 0)
           break;
       }
-      // Parse integers in buffer
-      char * token;
-      char * temp;
-      const char delim[2] = " ";
-      token = strtok(buffer, delim);
-      mydata->rpm = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->crankangle = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->throttle = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->fuelflow = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->temp = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->fanspeed = strtol(token, &temp, 10);
-      token = strtok(NULL, delim);
-      mydata->oilpres = strtol(token, &temp, 10);
+      mydata->rpm = numbers[0];
+      mydata->crankangle = numbers[1];
+      mydata->throttle = numbers[2];
+      mydata->fuelflow = numbers[3];
+      mydata->temp = numbers[4];
+      mydata->fanspeed = numbers[5];
+      mydata->oilpres = numbers[6];
       fprintf(stdout, "RPM              = %d\n", mydata->rpm );
       fprintf(stdout, "Crank Angle      = %d\n", mydata->crankangle );
       fprintf(stdout, "Throttle Setting = %d\n", mydata->throttle );

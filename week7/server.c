@@ -144,10 +144,21 @@ int main(int argc, char* argv[]){
             end_loop = 1; // End the while loop if one of the clients is detached
           }
           else{
-            memset(&buffer, 0, sizeof(buffer));
-            sprintf(buffer, "%d %d %d %d %d %d %d", mydata->rpm, mydata->crankangle, mydata->throttle, mydata->fuelflow, mydata->temp, mydata->fanspeed, mydata->oilpres);
+            // OLD WAY
+            // memset(&buffer, 0, sizeof(buffer));
+            // sprintf(buffer, "%d %d %d %d %d %d %d", mydata->rpm, mydata->crankangle, mydata->throttle, mydata->fuelflow, mydata->temp, mydata->fanspeed, mydata->oilpres);
+
+            // NEW WAY
+            int data [] = {
+              mydata->rpm,
+              mydata->crankangle,
+              mydata->throttle,
+              mydata->fuelflow,
+              mydata->temp,
+              mydata->fanspeed,
+              mydata->oilpres};
             // Client requests SEG_DATA
-            send(i, buffer, strlen(buffer), 0);
+            send(i, data, sizeof(data), 0);
           }
         }
       } // End of if FD_ISSET
