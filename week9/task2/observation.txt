@@ -1,0 +1,28 @@
+All plots have Serial fragment set to 0.1%
+
+### Task 2-1: Increasing network utilization
+Increasing network utilization value decreases speedup in a quite linear fashion.
+What I mean by 'linear fashion' is that the interval between each plot of maximum achieved speedup value is almost equal.
+
+For instance, with util=0.2 and num_cpu=128, speedup equals to around 90.
+Util=0.3 gives us a speedup value of around 78 (-12 from previous).
+Util=0.4 gives us a speedup value of around 65 (-13 from previous).
+
+Therefore, I think the behaviour is quite predictable.
+
+
+### Task 2-2: Increasing the delay factor
+Increasing the delay factor means that there are more than one packets / data in the packet-switch.
+This leads to an additional queueing delay for data transfer.
+
+When we have 0.02 df, we don't see any big difference compared to 0.01df. However, after multiplying the value
+several times up to 0.16, the speedup values become incredibly slow.
+
+Although both delay factor and network utilization slow down the system's performance, I think delay factor
+incurs higher cost and reduction in system performance.
+
+### Conclusion
+From the two experiments between Amdahl's law, it is true that good Sppedup value can be achieved when:
+- the delay is low, this means that the number of messages need to be reduced.
+- the network utilization is low
+- the serial fragments do not overpower the parallel fragments
