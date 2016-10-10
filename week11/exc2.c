@@ -29,8 +29,10 @@ int main(int argc, char* argv[]){
 
   int coord[2];
   MPI_Cart_coords(new_comm, rank, 2, coord);
+  // DEBUG
   // printf("process #%d - coord: (%d, %d)\n", rank, coord[0], coord[1]);
 
+  // http://www.bu.edu/tech/support/research/training-consulting/online-tutorials/mpi/virtual_topology/mpi_cart_shift/
   // int MPI_Cart_shift(MPI_Comm comm, int direction, int disp, int *rank_source, int *rank_dest)
   // the direction is on column, thus direction = 1
   // displacement is 1
